@@ -1,0 +1,11 @@
+# Local configuration and secrets
+includes/db.php
+
+# Backup files
+*.bak
+*.old
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
