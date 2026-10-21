@@ -1,7 +1,7 @@
-# WebTitle – Student Item Swap System
+# MineToYours – Student Item Swap System
 
 ## Project Description
-WebTitle is a PHP and MySQL web application that allows students to list items and request swaps with other students. It also provides an admin dashboard for managing listings, swap requests, and viewing reports.
+MineToYours is a PHP and MySQL web application that allows students to list items and request swaps with other students. It also provides an admin dashboard for managing listings, swap requests, and viewing reports.
 
 ## Features
 - Student registration and login
@@ -32,7 +32,7 @@ WebTitle is a PHP and MySQL web application that allows students to list items a
 4. Create a database named `webdevasg`.
 5. Import the provided database SQL script.
 6. Configure `includes/db.php` with your local database credentials.
-7. Open `http://localhost/WebDevAsg/` in your browser.
+7. Open `http://localhost/MineToYours/` in your browser.
 
 ## Database
 The database stores user accounts, item categories, listings, and swap requests. The SQL script included in this repository can be imported through phpMyAdmin.
