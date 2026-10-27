@@ -110,26 +110,59 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     }
                 }
             }
-            query("UPDATE swap_requests SET status=? WHERE request_id=?", "si", [$new, $id]);
+            
+            if ($new === "Completed") {
+                query(
+                    "UPDATE swap_requests
+                    SET status = ?, completed_at = NOW()
+                    WHERE request_id = ?",
+                    "si",
+                    [$new, $id]
+                );
+            } else {
+                query(
+                    "UPDATE swap_requests
+                    SET status = ?
+                    WHERE request_id = ?",
+                    "si",
+                    [$new, $id]
+                );
+            }
+
             if ($new === "Accepted" || $new === "Completed") {
                 $status = $new === "Accepted" ? "Reserved" : "Swapped";
-                query("UPDATE listings SET listing_status=? WHERE listing_id IN (?,?)", "sii", [$status, $a, $b]);
+
+                query(
+                    "UPDATE listings
+                    SET listing_status = ?
+                    WHERE listing_id IN (?, ?)",
+                    "sii",
+                    [$status, $a, $b]
+                );
             } elseif ($old === "accepted") {
-                query("UPDATE listings SET listing_status='Available' WHERE listing_id IN (?,?) AND listing_status='Reserved'", "ii", [$a, $b]);
+                query(
+                    "UPDATE listings
+                    SET listing_status = 'Available'
+                    WHERE listing_id IN (?, ?)
+                    AND listing_status = 'Reserved'",
+                    "ii",
+                    [$a, $b]
+                );
             }
-            $message = "Request updated to " . $new . ".";
-        } else {
-            throw new Exception("Invalid action.");
-        }
-        $conn->commit();
-        $_SESSION["admin_message"] = $message;
-        header("Location: admin_dashboard.php");
-        exit;
-    } catch (Exception $e) {
-        $conn->rollback();
-        $message = $e instanceof mysqli_sql_exception ? "Database error. Change not saved." : $e->getMessage();
-    }
-}
+
+                        $message = "Request updated to " . $new . ".";
+                    } else {
+                        throw new Exception("Invalid action.");
+                    }
+                    $conn->commit();
+                    $_SESSION["admin_message"] = $message;
+                    header("Location: admin_dashboard.php");
+                    exit;
+                } catch (Exception $e) {
+                    $conn->rollback();
+                    $message = $e instanceof mysqli_sql_exception ? "Database error. Change not saved." : $e->getMessage();
+                }
+            }
 // Retrieve records for the dashboard.
 $listings = $conn->query("SELECT l.*, u.full_name, c.category_name FROM listings l JOIN users u ON l.user_id=u.user_id JOIN categories c ON l.category_id=c.category_id ORDER BY l.listing_id DESC")->fetch_all(MYSQLI_ASSOC);
 $requests = $conn->query("SELECT sr.*, l.title AS item, o.title AS offered, u.full_name AS requester, owner.full_name AS owner FROM swap_requests sr JOIN listings l ON sr.requested_listing_id=l.listing_id LEFT JOIN listings o ON sr.offered_listing_id=o.listing_id JOIN users u ON sr.requester_id=u.user_id JOIN users owner ON l.user_id=owner.user_id ORDER BY sr.request_date DESC")->fetch_all(MYSQLI_ASSOC);
